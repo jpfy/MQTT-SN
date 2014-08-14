@@ -36,7 +36,7 @@
 #ifndef GATEWAYCONTROLTASK_H_
 #define GATEWAYCONTROLTASK_H_
 
-#include "lib/ZBStack.h"
+#include "lib/XBeeS1Stack.h"
 #include "lib/ProcessFramework.h"
 #include "GatewayResourcesProvider.h"
 

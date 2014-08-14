@@ -1,5 +1,5 @@
 /*
- * ZBStack.h
+ * XBeeS1Stack.h
   *
  *                      The BSD License
  *
@@ -52,7 +52,7 @@
 #define MAX_FRAME_DATA_SIZE  128
 
 #define XB_BROADCAST_ADDRESS32    0x0000ffff
-#define XB_BROADCAST_ADDRESS16     0xfffe
+#define XB_BROADCAST_ADDRESS16     0xffff
 
 #define DEFAULT_FRAME_ID 1
 
@@ -62,14 +62,14 @@
 
 #define API_ID_INDEX  3
 #define PACKET_OVERHEAD_LENGTH 6
-#define ZB_TX_API_LENGTH  12
-#define ZB_PAYLOAD_OFFSET 11
+#define ZB_TX_API_LENGTH  3
+#define ZB_PAYLOAD_OFFSET 4
 
 /**
  * API ID Constant
  */
-#define XB_TX_REQUEST          0x10
-#define XB_RX_RESPONSE         0x90
+#define XB_TX_REQUEST          0x01
+#define XB_RX_RESPONSE         0x81
 
 /**
  * TX STATUS

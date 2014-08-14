@@ -79,7 +79,7 @@ void ClientSendTask::run(){
 #endif
 
 	while(true){
-		Event* ev = _res->getClientSendQue()->wait();
+	       Event* ev = _res->getClientSendQue()->wait();
 
 		if(ev->getEventType() == EtClientSend){
 			MQTTSnMessage msg = MQTTSnMessage();
@@ -94,7 +94,11 @@ void ClientSendTask::run(){
 			msg.absorb( ev->getMqttSnMessage() );
 			_network->broadcast(msg.getMessagePtr(), msg.getMessageLength());
 		}
-		delete ev;
+		delete ev; 
+
+		/*uint8_t a = 0x88;
+		printf("No to unicast");
+		_network->unicast(0, (uint16_t)0x1234, &a, 2);*/
 	}
 }
 

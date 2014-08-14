@@ -1,5 +1,5 @@
 /*
- * ZBeeStack.cpp
+ * XBeeS1Stack.cpp
  *
  *                      The BSD License
  *
@@ -37,7 +37,7 @@
 #ifdef  NETWORK_XBEE
 
 #include "Messages.h"
-#include "ZBStack.h"
+#include "XBeeS1Stack.h"
 #include "ProcessFramework.h"
 #include "ErrorMessage.h"
 #include <stdio.h>
@@ -204,7 +204,7 @@ uint8_t NWResponse::getPayloadLength(){
 }
 
 uint16_t NWResponse::getClientAddress16(){
-	return getUint16(getFrameData() + 8);
+	return getUint16(getFrameData());
 }
 
 
@@ -265,7 +265,7 @@ void NWResponse::absorb(NWResponse* resp){
  =========================================*/
 
 NWRequest::NWRequest(){
-	_apiId = 0x10;
+	_apiId = 0x01;
 	_addr16 = 0;
 	_broadcastRadius = 0;
 	_option = 0;
@@ -337,50 +337,27 @@ void NWRequest::setPayloadLength(uint8_t payloadLength){
 
 
 uint8_t NWRequest::getFrameData(uint8_t pos){
-	uint8_t buf[4];
+	uint8_t buf[2];
 
-	if (pos == 0){
-		return 0;    // Frame ID
-	}else if (pos == 1){
-		setUint32(buf, _addr64.getMsb());
-		return buf[0];
-	}else if (pos == 2){
-		setUint32(buf, _addr64.getMsb());
-		return buf[1];
-	}else if (pos == 3){
-		setUint32(buf, _addr64.getMsb());
-		return buf[2];
-	}else if (pos == 4){
-		setUint32(buf, _addr64.getMsb());
-		return buf[3];
-	}else if (pos == 5){
-		setUint32(buf, _addr64.getLsb());
-		return buf[0];
-	}else if (pos == 6){
-		setUint32(buf, _addr64.getLsb());
-		return buf[1];
-	}else if (pos == 7){
-		setUint32(buf, _addr64.getLsb());
-		return buf[2];
-	}else if (pos == 8){
-		setUint32(buf, _addr64.getLsb());
-		return buf[3];
-	}else if (pos == 9){
+	if (pos == 0)	
+	{
 		setUint16(buf,_addr16);
 		return buf[0];
-	}else if (pos == 10){
+	}
+	else if (pos == 1)
+	{
 		setUint16(buf,_addr16);
 		return buf[1];
-	}else if (pos == 11){
-		return _broadcastRadius;
-	}else if (pos == 12){
+	}
+	else if (pos == 2)
+	{
 		return _option;
 	}
-	return getPayloadPtr()[pos - ZB_TX_API_LENGTH -1 ];
+	return getPayloadPtr()[pos - ZB_TX_API_LENGTH ];
 }
 
 uint8_t NWRequest::getFrameDataLength(){
-    return ZB_TX_API_LENGTH + 1 + getPayloadLength();
+    return ZB_TX_API_LENGTH + getPayloadLength() + 1;
 }
 
 
@@ -406,7 +383,6 @@ int XBee::initialize(XBeeConfig  config){
 }
 
 void XBee::readPacket(){
-
 	while(read(&_bd)){
 	  // Check Start Byte
 	  if( _pos > 0 && _bd == START_BYTE){
@@ -432,6 +408,7 @@ void XBee::readPacket(){
 	  }
 	  switch(_pos){
 		case 0:
+		  D_NWSTACK("\r\n===> Recv start:");
 		  if(_bd == START_BYTE){
 			  _pos++;
 		  }
@@ -443,7 +420,6 @@ void XBee::readPacket(){
 		case 2:
 		  _response.setLsbLength(_bd);
 		  _pos++;
-		  D_NWSTACK("\r\n===> Recv start: ");
 		  break;
 		case 3:
 		  _response.setApiId(_bd);
@@ -469,7 +445,7 @@ void XBee::readPacket(){
 			  uint8_t* buf = _response.getFrameData();
 			  buf[_pos - 4] = _bd;
 			  _pos++;
-			  if (_response.getApiId() == XB_RX_RESPONSE && _pos == 15){
+			  if (_response.getApiId() == XB_RX_RESPONSE && _pos == 8){
 				  D_NWSTACK( "\r\n     Payload: ");
 			  }
 		  }
@@ -479,7 +455,6 @@ void XBee::readPacket(){
 }
 
 bool XBee::receiveResponse(NWResponse* response){
-
     while(true){
     	readPacket();
 
@@ -510,17 +485,24 @@ void XBee::sendRequest(NWRequest &request){
 	sendByte(lsbLen, true);
 
 	sendByte(request.getApiId(), true);
+	sendByte(0x01, true);
 
 	uint8_t checksum = 0;
 	checksum+= request.getApiId();
+	checksum+= 1;
 
-	for( int i = 0; i < request.getFrameDataLength(); i++ ){
-	  if (request.getApiId() == XB_TX_REQUEST && i == 13){
+	for( int i = 0; i < request.getFrameDataLength() - 1; i++ ){
+	  if (request.getApiId() == XB_TX_REQUEST && i == 3){
 		  D_NWSTACK("\r\n     Payload:    ");
 	  }
 	  sendByte(request.getFrameData(i), true);
 	  checksum+= request.getFrameData(i);
 	}
+	/*for( int i = 0 ; i < 70; i++)
+	{
+		sendByte(i, true);
+		checksum+= i;
+	}*/
 	checksum = 0xff - checksum;
 	sendByte(checksum, true);
 
@@ -654,6 +636,7 @@ bool SerialPort::send(unsigned char b){
 
 bool SerialPort::recv(unsigned char* buf){
 	if(read(_fd, buf, 1) == 0){
+	    printf("SerialPort read failed\n");
 	    return false;
 	}else{
 		D_NWSTACK( " %02x",buf[0] );

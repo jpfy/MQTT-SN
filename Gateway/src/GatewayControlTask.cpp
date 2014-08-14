@@ -90,13 +90,12 @@ void GatewayControlTask::run(){
 
 	_eventQue = _res->getGatewayEventQue();
 
-	advertiseTimer.start(keepAlive * 1000UL);
+	advertiseTimer.start(keepAlive*1000UL);
 
 	printf("%s TomyGateway start\n", currentDateTime());
 
 
 	while(true){
-
 		ev = _eventQue->timedwait(TIMEOUT_PERIOD);
 
 		/*------     Check Client is Lost    ---------*/
@@ -121,7 +120,7 @@ void GatewayControlTask::run(){
 				printf(YELLOW_FORMAT2, currentDateTime(), "ADVERTISE", LEFTARROW, GATEWAY, msgPrint(adv));
 
 				_res->getClientSendQue()->post(ev1);
-				advertiseTimer.start(keepAlive * 1000UL);
+				advertiseTimer.start(keepAlive*1000UL);
 				sendUnixTimer.start(SEND_UNIXTIME_TIME * 1000UL);
 			}
 
@@ -168,7 +167,7 @@ void GatewayControlTask::run(){
 		
 		/*------   Message form Clients      ---------*/
 		else if(ev->getEventType() == EtClientRecv){
-
+			printf("Received message from client!");
 			ClientNode* clnode = ev->getClientNode();
 			MQTTSnMessage* msg = clnode->getClientRecvMessage();
 			

@@ -319,6 +319,7 @@ void ClientNode::setClientAddress64(NWAddress64* addr){
 }
 
 void ClientNode::setClientAddress16(uint16_t addr){
+    printf("Client address set to: %x\n", addr);
     _address16 = addr;
 }
 
@@ -391,13 +392,17 @@ ClientNode* ClientList::createNode(NWAddress64* addr64, uint16_t addr16, string*
 	if(_clientCnt < MAX_CLIENT_NODES && !_authorize){
 		_mutex.lock();
 		vector<ClientNode*>::iterator client = _clientVector->begin();
-		while( client != _clientVector->end()){
-			if(((*client)->getAddress64Ptr() == addr64) && ((*client)->getAddress16() == addr16)){
+		while( client != _clientVector->end())
+		{
+			//printf("\ngetAddress16(): %x\n",(*client)->getAddress16());
+			//printf("\naddr16\n: %x", addr16); 
+			if(  (*client)->getAddress16() == addr16 ){
 				return 0;
 			}else{
 				++client;
 			}
 		}
+		//printf("\r\nCreate client node");
 		ClientNode* node = new ClientNode();
 		node->setClientAddress64(addr64);
 		node->setClientAddress16(addr16);
@@ -409,7 +414,7 @@ ClientNode* ClientList::createNode(NWAddress64* addr64, uint16_t addr16, string*
 		_mutex.unlock();
 		return node;
 	}else{
-		return getClient(addr64, addr16);
+		return getClient(addr16);
 	}
 }
 
@@ -436,15 +441,17 @@ void ClientList::erase(ClientNode* clnode){
 	_mutex.unlock();
 }
 
-ClientNode* ClientList::getClient(NWAddress64* addr64, uint16_t addr16){
+ClientNode* ClientList::getClient(uint16_t addr16){
 	_mutex.lock();
 	vector<ClientNode*>::iterator client = _clientVector->begin();
 	while( (client != _clientVector->end()) && *client){
-			if(*((*client)->getAddress64Ptr()) == *addr64 &&
-					(*client)->getAddress16() == addr16){
+			if( (*client)->getAddress16() == addr16 )
+			{
 				_mutex.unlock();
 				return *client;
-			}else{
+			}	
+			else
+			{
 				++client;
 			}
 	}

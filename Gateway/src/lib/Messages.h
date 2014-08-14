@@ -159,7 +159,7 @@
 #define MQTTSN_ERR_PINGRESP_TIMEOUT  -11
 
 
-#include "ZBStack.h"
+#include "XBeeS1Stack.h"
 #include "UDPStack.h"
 #include "ProcessFramework.h"
 #include <string>

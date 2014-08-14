@@ -37,7 +37,7 @@
 #include "GatewayDefines.h"
 #include "lib/ProcessFramework.h"
 #include "lib/Messages.h"
-#include "lib/ZBStack.h"
+#include "lib/XBeeS1Stack.h"
 #include "lib/ErrorMessage.h"
 
 
@@ -97,14 +97,15 @@ void ClientRecvTask::run(){
 
 		if(_network->getResponse(resp)){
 			Event* ev = new Event();
-			ClientNode* clnode = _res->getClientList()->getClient(resp->getClientAddress64(),
-					                                              resp->getClientAddress16());
-
+			ClientNode* clnode =
+				 _res->getClientList()->getClient(resp->getClientAddress16());
+			//printf("MSGTYPE: Hex: %x Dec: %d \n", resp->getMsgType(), resp->getMsgType());
 			if(!clnode){
+				//printf("\r\n !clnode\n");
 				if(resp->getMsgType() == MQTTSN_TYPE_CONNECT){
-
+				//printf("\r\n FIRST CONNECT - SHOULD CREATE NODE\n");
 				#ifdef NETWORK_XBEE
-					ClientNode* node = _res->getClientList()->createNode(resp->getClientAddress64(),0);
+					ClientNode* node = _res->getClientList()->createNode(resp->getClientAddress64(),resp->getClientAddress16());
 				#endif
 				#ifdef NETWORK_UDP
 					ClientNode* node = _res->getClientList()->createNode(resp->getClientAddress64(),

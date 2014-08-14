@@ -15,7 +15,7 @@ $(SUBDIR)/TCPStack.cpp \
 $(SUBDIR)/Topics.cpp \
 $(SUBDIR)/UDPStack.cpp \
 $(SUBDIR)/XXXXXStack.cpp \
-$(SUBDIR)/ZBStack.cpp 
+$(SUBDIR)/XBeeS1Stack.cpp 
 
 CXX := g++
 CPPFLAGS += 

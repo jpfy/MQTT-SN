@@ -34,7 +34,7 @@
  */
 
 #include "Defines.h"
-#include "ZBStack.h"
+#include "XBeeS1Stack.h"
 #include "UDPStack.h"
 #include "ProcessFramework.h"
 #include "Messages.h"

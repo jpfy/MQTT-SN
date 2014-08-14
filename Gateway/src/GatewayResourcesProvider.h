@@ -151,7 +151,7 @@ public:
 	~ClientList();
 	void authorize(const char* fileName);
 	void erase(ClientNode*);
-	ClientNode* getClient(NWAddress64* addr64, uint16_t addr16);
+	ClientNode* getClient(uint16_t addr16);
 	ClientNode* createNode(NWAddress64* addr64, uint16_t addr16, string* nodeId = 0);
 	uint16_t getClientCount();
 	ClientNode* operator[](int);
